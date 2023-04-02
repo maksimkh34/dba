@@ -135,6 +135,7 @@
     <ClCompile Include="AddUser.cpp" />
     <ClCompile Include="AdminsList.cpp" />
     <ClCompile Include="ChangePassword.cpp" />
+    <ClCompile Include="crypt.cpp" />
     <ClCompile Include="DBError.cpp" />
     <ClCompile Include="EI.cpp" />
     <ClCompile Include="EIClass.cpp" />
@@ -170,6 +171,7 @@
     <ClInclude Include="ChangePassword.h">
       <FileType>CppForm</FileType>
     </ClInclude>
+    <ClInclude Include="crypt.h" />
     <ClInclude Include="DBError.h">
       <FileType>CppForm</FileType>
     </ClInclude>

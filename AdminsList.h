@@ -3,6 +3,7 @@
 #include "AddUser.h"
 #include "ChangePassword.h"
 #include "paths.h"
+#include "crypt.h"
 #include "trans.h"
 #include "split.h"
 
@@ -205,7 +206,7 @@ namespace DBa {
 		delete temp;
 		vector<vector<std::string>> data;
 		for (int i = 0; i < __datas->size(); i++) {
-			data.push_back(split(__datas->at(i), '-'));
+			data.push_back(split(sdecrypt(__datas->at(i)), '-'));
 		}
 		delete __datas;
 		for (int i = 0; i < data.size(); i++)

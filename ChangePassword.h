@@ -6,6 +6,7 @@
 #include "paths.h"
 #include "split.h"
 #include "trans.h"
+#include "crypt.h"
 #include "LoginError.h"
 #include "UsrNotFound.h"
 
@@ -179,7 +180,7 @@ namespace DBa {
 			std::string* temp = new std::string;
 			while (!inp.eof()) {
 				getline(inp, *temp);
-				__datas->push_back(*temp);
+				__datas->push_back(sdecrypt(*temp));
 			}
 			delete temp;
 			vector<vector<std::string>> data;
@@ -197,9 +198,9 @@ namespace DBa {
 			if (changed) {
 				ofstream out(paths::get_path() + "\\usr.zb");
 				for (int i = 0; i < data.size() - 1; i++) {
-					out << data[i][0] << '-' << data[i][1] << '\n';
+					out << scrypt(data[i][0]) << 'J' << scrypt(data[i][1]) << '\n';
 				}
-				out << data[data.size() - 1][0] << '-' << data[data.size() - 1][1];
+				out << scrypt(data[data.size() - 1][0]) << 'J' << scrypt(data[data.size() - 1][1]);
 				this->Close();
 			}
 			else {

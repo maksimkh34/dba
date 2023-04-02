@@ -84,6 +84,9 @@
     <ClCompile Include="Event.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+    <ClCompile Include="crypt.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="AddEI.h">
@@ -156,6 +159,9 @@
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
     <ClInclude Include="..\..\include\Event.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="crypt.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
   </ItemGroup>

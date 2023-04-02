@@ -11,6 +11,7 @@
 #include "exts.h"
 #include "split.h"
 #include "trans.h"
+#include "crypt.h"
 #include "paths.h"
 #include "Logger.h"
 #include "DBError.h"
@@ -176,7 +177,7 @@ namespace DBa {
 		std::vector<std::vector<string>> datas;
 		while (!db.eof()) {
 			getline(db, data);
-			std::vector<string> data_v = split(data, '-');
+			std::vector<string> data_v = split(sdecrypt(data), '-');
 			datas.push_back(data_v);
 		}
 

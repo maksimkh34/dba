@@ -2,6 +2,7 @@
 #include <fstream>
 #include <msclr\marshal_cppstd.h>
 #include "paths.h"
+#include "crypt.h"
 
 using std::ofstream;
 
@@ -141,11 +142,9 @@ namespace DBa {
 
 		std::fstream out;
 
-
-
 		out.open(paths::get_path() + "\\usr.zb");
 		out.seekg(0, std::ios_base::end);
-		out << '\n' << msclr::interop::marshal_as<std::string>(str);
+		out << '\n' << scrypt(msclr::interop::marshal_as<std::string>(str));
 		this->Close();
 
 	}
