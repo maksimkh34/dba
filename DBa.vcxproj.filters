@@ -167,6 +167,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="TODO.md" />
+    <None Include=".gitignore" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Main.rc">
