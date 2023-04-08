@@ -82,13 +82,18 @@
       <UseUnicodeForAssemblerListing>true</UseUnicodeForAssemblerListing>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
-      <AdditionalIncludeDirectories>D:\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\libs\sqlite_amalgamation;D:\include</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4996;4829;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <CompileAsManaged>true</CompileAsManaged>
     </ClCompile>
     <Link>
-      <AdditionalDependencies />
+      <AdditionalDependencies>
+      </AdditionalDependencies>
       <SubSystem>Windows</SubSystem>
       <EntryPointSymbol>main</EntryPointSymbol>
+      <CLRThreadAttribute>
+      </CLRThreadAttribute>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -235,6 +240,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Help_f.resx">
       <DependentUpon>Help_f.h</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Login.resx">
+      <DependentUpon>Login.h</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="LoginError.resx">
       <DependentUpon>LoginError.h</DependentUpon>
