@@ -219,7 +219,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include=".gitignore" />
     <None Include="TODO.md" />
   </ItemGroup>
   <ItemGroup>

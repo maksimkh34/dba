@@ -62,8 +62,9 @@ namespace DBa {
 	protected:
 	private: System::Windows::Forms::TextBox^ login_tb;
 	private: System::Windows::Forms::TextBox^ pass_tb;
-	private: System::Windows::Forms::Label^ label2;
+
 	private: System::Windows::Forms::Button^ auth_butt;
+	private: System::Windows::Forms::Label^ label2;
 
 	private:
 		/// <summary>
@@ -81,21 +82,25 @@ namespace DBa {
 			this->label1 = (gcnew System::Windows::Forms::Label());
 			this->login_tb = (gcnew System::Windows::Forms::TextBox());
 			this->pass_tb = (gcnew System::Windows::Forms::TextBox());
-			this->label2 = (gcnew System::Windows::Forms::Label());
 			this->auth_butt = (gcnew System::Windows::Forms::Button());
+			this->label2 = (gcnew System::Windows::Forms::Label());
 			this->SuspendLayout();
 			// 
 			// label1
 			// 
 			this->label1->AutoSize = true;
-			this->label1->Location = System::Drawing::Point(12, 9);
+			this->label1->Font = (gcnew System::Drawing::Font(L"Segoe MDL2 Assets", 12, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(0)));
+			this->label1->ForeColor = System::Drawing::SystemColors::ButtonHighlight;
+			this->label1->Location = System::Drawing::Point(12, 7);
 			this->label1->Name = L"label1";
-			this->label1->Size = System::Drawing::Size(38, 13);
+			this->label1->Size = System::Drawing::Size(41, 16);
 			this->label1->TabIndex = 0;
 			this->label1->Text = L"Логин";
 			// 
 			// login_tb
 			// 
+			this->login_tb->BackColor = System::Drawing::Color::White;
 			this->login_tb->Location = System::Drawing::Point(16, 25);
 			this->login_tb->Name = L"login_tb";
 			this->login_tb->Size = System::Drawing::Size(256, 20);
@@ -110,40 +115,49 @@ namespace DBa {
 			this->pass_tb->TabIndex = 3;
 			this->pass_tb->UseSystemPasswordChar = true;
 			// 
-			// label2
-			// 
-			this->label2->AutoSize = true;
-			this->label2->Location = System::Drawing::Point(12, 48);
-			this->label2->Name = L"label2";
-			this->label2->Size = System::Drawing::Size(45, 13);
-			this->label2->TabIndex = 2;
-			this->label2->Text = L"Пароль";
-			// 
 			// auth_butt
 			// 
+			this->auth_butt->BackColor = System::Drawing::Color::White;
+			this->auth_butt->ForeColor = System::Drawing::SystemColors::Control;
 			this->auth_butt->Location = System::Drawing::Point(16, 90);
 			this->auth_butt->Name = L"auth_butt";
 			this->auth_butt->Size = System::Drawing::Size(256, 23);
 			this->auth_butt->TabIndex = 4;
 			this->auth_butt->Text = L"Авторизация";
-			this->auth_butt->UseVisualStyleBackColor = true;
+			this->auth_butt->UseVisualStyleBackColor = false;
 			this->auth_butt->Click += gcnew System::EventHandler(this, &Login::auth_butt_Click);
+			// 
+			// label2
+			// 
+			this->label2->AutoSize = true;
+			this->label2->Font = (gcnew System::Drawing::Font(L"Segoe MDL2 Assets", 12, System::Drawing::FontStyle::Regular, System::Drawing::GraphicsUnit::Point,
+				static_cast<System::Byte>(0)));
+			this->label2->ForeColor = System::Drawing::SystemColors::ButtonHighlight;
+			this->label2->Location = System::Drawing::Point(13, 45);
+			this->label2->Name = L"label2";
+			this->label2->Size = System::Drawing::Size(51, 16);
+			this->label2->TabIndex = 5;
+			this->label2->Text = L"Пароль";
 			// 
 			// Login
 			// 
 			this->AcceptButton = this->auth_butt;
 			this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
+			this->BackColor = System::Drawing::Color::FromArgb(static_cast<System::Int32>(static_cast<System::Byte>(24)), static_cast<System::Int32>(static_cast<System::Byte>(28)),
+				static_cast<System::Int32>(static_cast<System::Byte>(28)));
 			this->ClientSize = System::Drawing::Size(284, 126);
+			this->Controls->Add(this->label2);
 			this->Controls->Add(this->auth_butt);
 			this->Controls->Add(this->pass_tb);
-			this->Controls->Add(this->label2);
 			this->Controls->Add(this->login_tb);
 			this->Controls->Add(this->label1);
-			this->FormBorderStyle = System::Windows::Forms::FormBorderStyle::FixedDialog;
+			this->ForeColor = System::Drawing::SystemColors::AppWorkspace;
+			this->FormBorderStyle = System::Windows::Forms::FormBorderStyle::None;
 			this->MaximizeBox = false;
 			this->MinimizeBox = false;
 			this->Name = L"Login";
+			this->Opacity = 0.8;
 			this->StartPosition = System::Windows::Forms::FormStartPosition::CenterScreen;
 			this->Text = L"Вход в систему";
 			this->Load += gcnew System::EventHandler(this, &Login::Login_Load);

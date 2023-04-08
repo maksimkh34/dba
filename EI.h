@@ -1,5 +1,6 @@
 #pragma once
 #include <windows.h>
+#include <sqlite3.h>
 
 #include "mcsv.h"
 #include "AddEI.h"
@@ -364,6 +365,7 @@ namespace DBa {
 		}
 #pragma endregion
 	private: System::Void EI_Load(System::Object^ sender, System::EventArgs^ e) {
+		/*
 		transf::setLastAddedSchoolNumber(0);
 		vector<vector<string>> data = mcsv::read_csv(paths::get_path() + "\\schools.zb");
 		for (int i = 0; i < data.size(); i++)
@@ -381,9 +383,14 @@ namespace DBa {
 				msclr::interop::marshal_as<System::String^>(data[i][9])
 			);
 			transf::setLastAddedSchoolNumber(transf::getLastAddedSchoolNumber() + 1);
+			
+
 		}
 		int rows_num = this->main_dg->Rows->Count;
-		this->rows_num_tb->Text = rows_num.ToString();
+		this->rows_num_tb->Text = rows_num.ToString();*/
+		//sqlite3* db;
+		//sqlite3_open("schools.db", &db);
+		
 	}
 	private: System::Void dataGridView1_CellContentClick(System::Object^ sender, System::Windows::Forms::DataGridViewCellEventArgs^ e) {
 
