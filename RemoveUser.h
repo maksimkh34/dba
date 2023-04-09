@@ -7,6 +7,7 @@
 
 #include "split.h"
 #include "paths.h"
+#include "crypt.h"
 
 using std::ifstream;
 using std::vector;
@@ -121,7 +122,7 @@ namespace DBa {
 		std::string* temp = new std::string;
 		while (!inp.eof()) {
 			std::getline(inp, *temp);
-			__datas->push_back(*temp);
+			__datas->push_back(sdecrypt(*temp));
 		}
 		delete temp;
 		vector<vector<std::string>> data;
@@ -138,9 +139,9 @@ namespace DBa {
 		}
 		ofstream out(paths::get_path() + "\\usr.zb");
 		for (int i = 0; i < data.size() - 1; i++) {
-			out << data[i][0] << '-' << data[i][1] << '\n';
+			out << scrypt(data[i][0]) << scrypt("-") << scrypt(data[i][1]) << '\n';
 		}
-		out << data[data.size() - 1][0] << '-' << data[data.size() - 1][1];
+		out << scrypt(data[data.size() - 1][0]) << scrypt("-") << scrypt(data[data.size() - 1][1]);
 		this->Close();
 	}
 	private: System::Void RemoveUser_Load(System::Object^ sender, System::EventArgs^ e) {

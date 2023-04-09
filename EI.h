@@ -238,6 +238,7 @@ namespace DBa {
 			this->menuStrip1->Size = System::Drawing::Size(1313, 24);
 			this->menuStrip1->TabIndex = 4;
 			this->menuStrip1->Text = L"menuStrip1";
+			this->menuStrip1->ItemClicked += gcnew System::Windows::Forms::ToolStripItemClickedEventHandler(this, &EI::menuStrip1_ItemClicked);
 			// 
 			// ïðàâêàToolStripMenuItem
 			// 
@@ -388,8 +389,8 @@ namespace DBa {
 		}
 		int rows_num = this->main_dg->Rows->Count;
 		this->rows_num_tb->Text = rows_num.ToString();*/
-		//sqlite3* db;
-		//sqlite3_open("schools.db", &db);
+		sqlite3* db;
+		sqlite3_open("schools.db", &db);
 		
 	}
 	private: System::Void dataGridView1_CellContentClick(System::Object^ sender, System::Windows::Forms::DataGridViewCellEventArgs^ e) {
@@ -524,7 +525,9 @@ namespace DBa {
 		rows_num_tb->Text = (Int32::Parse(rows_num_tb->Text) - 1).ToString();
 		mcsv::write_csv(paths::get_path() + "\\schools.zb", data);
 	}
-	};
+	private: System::Void menuStrip1_ItemClicked(System::Object^ sender, System::Windows::Forms::ToolStripItemClickedEventArgs^ e) {
+	}
+};
 }
 
 ref class EI

@@ -1,5 +1,6 @@
 #pragma once
 #include <fstream>
+#include <string>
 #include <msclr\marshal_cppstd.h>
 #include "paths.h"
 #include "crypt.h"
@@ -138,13 +139,19 @@ namespace DBa {
 		System::String^ password = pass_tb->Text;
 		System::String^ login = name_tb->Text;
 
-		System::String^ str = login + "-" + password;
+		string str = scrypt(msclr::interop::marshal_as<std::string>(login + "-" + password));
 
 		std::fstream out;
 
-		out.open(paths::get_path() + "\\usr.zb");
+		string path__ = paths::get_path() + "\\usr.zb";
+
+		out.open(path__);
 		out.seekg(0, std::ios_base::end);
-		out << '\n' << scrypt(msclr::interop::marshal_as<std::string>(str));
+
+		if (out.tellg() != 0) 
+			out << '\n';
+
+		out << str;
 		this->Close();
 
 	}

@@ -82,7 +82,7 @@
       <UseUnicodeForAssemblerListing>true</UseUnicodeForAssemblerListing>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <LanguageStandard_C>stdc17</LanguageStandard_C>
-      <AdditionalIncludeDirectories>D:\libs\sqlite_amalgamation;D:\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\libs\sqlite3;D:\include</AdditionalIncludeDirectories>
       <DisableSpecificWarnings>4996;4829;%(DisableSpecificWarnings)</DisableSpecificWarnings>
       <CompileAsManaged>true</CompileAsManaged>
     </ClCompile>
@@ -136,6 +136,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\libs\sqlite3\sqlite3.c">
+      <CompileAsManaged Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">false</CompileAsManaged>
+    </ClCompile>
     <ClCompile Include="AddEI.cpp" />
     <ClCompile Include="AddUser.cpp" />
     <ClCompile Include="AdminsList.cpp" />
@@ -164,6 +167,7 @@
   <ItemGroup>
     <ClInclude Include="..\..\include\Event.h" />
     <ClInclude Include="..\..\include\Logger.h" />
+    <ClInclude Include="..\..\libs\sqlitedll\sqlite3.h" />
     <ClInclude Include="AddEI.h">
       <FileType>CppForm</FileType>
     </ClInclude>

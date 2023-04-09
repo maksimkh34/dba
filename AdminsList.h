@@ -201,6 +201,7 @@ namespace DBa {
 		std::string* temp = new std::string;
 		while (!inp.eof()) {
 			getline(inp, *temp);
+			if (*temp == "") return;
 			__datas->push_back(*temp);
 		}
 		delete temp;
@@ -223,7 +224,7 @@ namespace DBa {
 		std::string* temp = new std::string;
 		while (!inp.eof()) {
 			getline(inp, *temp);
-			__datas.push_back(*temp);
+			__datas.push_back(sdecrypt(*temp));
 		}
 		delete temp;
 		std::string lastAddedName = split(__datas[__datas.size() - 1], '-')[0];
@@ -241,7 +242,7 @@ namespace DBa {
 		std::string* temp = new std::string;
 		while (!inp.eof()) {
 			getline(inp, *temp);
-			__datas->push_back(*temp);
+			__datas->push_back(sdecrypt(*temp));
 		}
 		delete temp;
 		vector<vector<std::string>> data;
