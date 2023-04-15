@@ -1,6 +1,5 @@
 #pragma once
 #include <vector>
-#include <fstream>
 #include <sqlite3.h>
 #include <unordered_map>
 #include <windows.h>
@@ -10,7 +9,6 @@
 #include "convert.h"
 #include "split.h"
 #include "trans.h"
-#include "crypt.h"
 #include "LoginError.h"
 #include "UsrNotFound.h"
 

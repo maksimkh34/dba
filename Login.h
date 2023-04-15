@@ -2,7 +2,6 @@
 
 #include <string>
 #include <vector>
-#include <fstream>
 #include <string>
 #include <unordered_map>
 #include <stdlib.h>
@@ -14,7 +13,6 @@
 #include "convert.h"
 #include "split.h"
 #include "trans.h"
-#include "crypt.h"
 #include "paths.h"
 #include "Logger.h"
 #include "DBError.h"

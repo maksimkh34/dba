@@ -2,7 +2,7 @@
 #include <string>
 #include <msclr\marshal_cppstd.h>
 #include "paths.h"
-#include "crypt.h"
+#include <string>
 #include <unordered_map>
 #include <sqlite3.h>
 #include "convert.h"
@@ -13,7 +13,7 @@ namespace DBa {
 
 	static int ulx_callback(void* data, int argc, char** argv, char** azColName)
 	{
-		std::vector<string> result;
+		std::vector<std::string> result;
 		for (int i = 0; i < argc; i++)
 		{
 			result.push_back(azColName[i]);

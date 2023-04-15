@@ -4,7 +4,6 @@
 #include "AddUser.h"
 #include "ChangePassword.h"
 #include "paths.h"
-#include "crypt.h"
 #include "trans.h"
 #include "split.h"
 #include <sqlite3.h>

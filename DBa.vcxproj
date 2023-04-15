@@ -146,7 +146,6 @@
     <ClCompile Include="ChangePassword.cpp" />
     <ClCompile Include="Confirm.cpp" />
     <ClCompile Include="convert.cpp" />
-    <ClCompile Include="crypt.cpp" />
     <ClCompile Include="DBError.cpp" />
     <ClCompile Include="EI.cpp" />
     <ClCompile Include="EIClass.cpp" />
@@ -189,7 +188,6 @@
       <FileType>CppForm</FileType>
     </ClInclude>
     <ClInclude Include="convert.h" />
-    <ClInclude Include="crypt.h" />
     <ClInclude Include="DBError.h">
       <FileType>CppForm</FileType>
     </ClInclude>
