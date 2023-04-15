@@ -5,7 +5,10 @@ namespace transf {
 	int lastAddedUserNumber = 0;
 	int lastAddedSchoolNumber = 0;
 	bool isSchoolAdded;
-	Logger* __log = new Logger("C:\\ProgramData\\DBa\\Logs", "DBa");
+	vector<vector<string>> vect;
+	vector<string> data_changelog;
+	//Logger* __log = new Logger("C:\\ProgramData\\DBa\\Logs", "DBa");
+	vector<vector<string>> data_callback;
 
 	std::string getName()
 	{
@@ -46,19 +49,19 @@ namespace transf {
 		isSchoolAdded = x;
 	}
 
-	void add_event(Event ev)
-	{
-		__log->push_ev(ev);
-	}
+	//void add_event(Event ev)
+	//{
+	//	__log->push_ev(ev);
+	//}
 
-	void flush_l()
-	{
-		__log->flush();
-	}
+	//void flush_l()
+	//{
+	//	__log->flush();
+	//}
 
-	void close_logger()
-	{
-		delete __log;
-	}
+	//void close_logger()
+	//{
+	//	delete __log;
+	//}
 
 }

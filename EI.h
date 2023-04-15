@@ -1,13 +1,27 @@
 #pragma once
 #include <windows.h>
 #include <sqlite3.h>
-
+#include "Confirm.h"
 #include "mcsv.h"
+#include "convert.h"
+#include "Event.h"
 #include "AddEI.h"
 #include "trans.h"
 #include "paths.h"
 
 namespace DBa {
+
+	static int callback(void* data, int argc, char** argv, char** azColName)
+	{
+		std::vector<string> result;
+		for (int i = 0; i < argc; i++)
+		{
+			result.push_back(azColName[i]);
+			result.push_back(argv[i]);
+		}
+		transf::data_callback.push_back(result);
+		return 0;
+	}
 
 	using namespace System;
 	using namespace System::ComponentModel;
@@ -46,17 +60,17 @@ namespace DBa {
 	private: System::Windows::Forms::Label^ label1;
 	private: System::Windows::Forms::TextBox^ rows_num_tb;
 
-	private: System::Windows::Forms::DataGridViewTextBoxColumn^ num;
-	private: System::Windows::Forms::DataGridViewTextBoxColumn^ name;
-	private: System::Windows::Forms::DataGridViewTextBoxColumn^ pod;
-	private: System::Windows::Forms::DataGridViewTextBoxColumn^ org;
-	private: System::Windows::Forms::DataGridViewTextBoxColumn^ org_form;
-	private: System::Windows::Forms::DataGridViewTextBoxColumn^ leader;
-	private: System::Windows::Forms::DataGridViewTextBoxColumn^ email;
-	private: System::Windows::Forms::DataGridViewTextBoxColumn^ site;
-	private: System::Windows::Forms::DataGridViewTextBoxColumn^ unp;
-	private: System::Windows::Forms::DataGridViewTextBoxColumn^ contact;
-	private: System::Windows::Forms::DataGridViewTextBoxColumn^ adress;
+
+
+
+
+
+
+
+
+
+
+
 	private: System::Windows::Forms::MenuStrip^ menuStrip1;
 	private: System::Windows::Forms::ToolStripMenuItem^ Ô‡‚Í‡ToolStripMenuItem;
 	private: System::Windows::Forms::ToolStripMenuItem^ ‚˚ÂÁ‡Ú¸ToolStripMenuItem;
@@ -75,6 +89,17 @@ namespace DBa {
 	private: System::Windows::Forms::ToolStripMenuItem^ Ó·ÌÓ‚ËÚ¸ToolStripMenuItem;
 	private: System::Windows::Forms::ToolStripMenuItem^ Ó˜ËÒÚËÚ¸¬ÒÂToolStripMenuItem;
 	private: System::Windows::Forms::ToolStripMenuItem^ Û‰‡ÎËÚ¸ToolStripMenuItem;
+	private: System::Windows::Forms::DataGridViewTextBoxColumn^ num;
+	private: System::Windows::Forms::DataGridViewTextBoxColumn^ name;
+	private: System::Windows::Forms::DataGridViewTextBoxColumn^ pod;
+	private: System::Windows::Forms::DataGridViewTextBoxColumn^ org;
+	private: System::Windows::Forms::DataGridViewTextBoxColumn^ org_form;
+	private: System::Windows::Forms::DataGridViewTextBoxColumn^ leader;
+	private: System::Windows::Forms::DataGridViewTextBoxColumn^ email;
+	private: System::Windows::Forms::DataGridViewTextBoxColumn^ site;
+	private: System::Windows::Forms::DataGridViewTextBoxColumn^ unp;
+	private: System::Windows::Forms::DataGridViewTextBoxColumn^ contact;
+	private: System::Windows::Forms::DataGridViewTextBoxColumn^ adress;
 
 	private: System::ComponentModel::IContainer^ components;
 
@@ -137,9 +162,10 @@ namespace DBa {
 				this->num, this->name,
 					this->pod, this->org, this->org_form, this->leader, this->email, this->site, this->unp, this->contact, this->adress
 			});
-			this->main_dg->Location = System::Drawing::Point(8, 25);
+			this->main_dg->Location = System::Drawing::Point(8, 27);
 			this->main_dg->Name = L"main_dg";
-			this->main_dg->Size = System::Drawing::Size(1293, 595);
+			this->main_dg->RowHeadersVisible = false;
+			this->main_dg->Size = System::Drawing::Size(1254, 593);
 			this->main_dg->StandardTab = true;
 			this->main_dg->TabIndex = 0;
 			this->main_dg->CellContentClick += gcnew System::Windows::Forms::DataGridViewCellEventHandler(this, &EI::dataGridView1_CellContentClick);
@@ -211,7 +237,7 @@ namespace DBa {
 			// label1
 			// 
 			this->label1->AutoSize = true;
-			this->label1->Location = System::Drawing::Point(1142, 9);
+			this->label1->Location = System::Drawing::Point(1102, 11);
 			this->label1->Name = L"label1";
 			this->label1->Size = System::Drawing::Size(89, 13);
 			this->label1->TabIndex = 1;
@@ -220,7 +246,7 @@ namespace DBa {
 			// 
 			// rows_num_tb
 			// 
-			this->rows_num_tb->Location = System::Drawing::Point(1237, 4);
+			this->rows_num_tb->Location = System::Drawing::Point(1197, 6);
 			this->rows_num_tb->Name = L"rows_num_tb";
 			this->rows_num_tb->ReadOnly = true;
 			this->rows_num_tb->Size = System::Drawing::Size(64, 20);
@@ -235,7 +261,7 @@ namespace DBa {
 			});
 			this->menuStrip1->Location = System::Drawing::Point(0, 0);
 			this->menuStrip1->Name = L"menuStrip1";
-			this->menuStrip1->Size = System::Drawing::Size(1313, 24);
+			this->menuStrip1->Size = System::Drawing::Size(1273, 24);
 			this->menuStrip1->TabIndex = 4;
 			this->menuStrip1->Text = L"menuStrip1";
 			this->menuStrip1->ItemClicked += gcnew System::Windows::Forms::ToolStripItemClickedEventHandler(this, &EI::menuStrip1_ItemClicked);
@@ -344,7 +370,7 @@ namespace DBa {
 			// 
 			this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
-			this->ClientSize = System::Drawing::Size(1313, 637);
+			this->ClientSize = System::Drawing::Size(1273, 637);
 			this->Controls->Add(this->rows_num_tb);
 			this->Controls->Add(this->label1);
 			this->Controls->Add(this->main_dg);
@@ -366,31 +392,41 @@ namespace DBa {
 		}
 #pragma endregion
 	private: System::Void EI_Load(System::Object^ sender, System::EventArgs^ e) {
-		/*
-		transf::setLastAddedSchoolNumber(0);
-		vector<vector<string>> data = mcsv::read_csv(paths::get_path() + "\\schools.zb");
-		for (int i = 0; i < data.size(); i++)
-		{
-			main_dg->Rows->Add(transf::getLastAddedSchoolNumber() + 1,
-				msclr::interop::marshal_as<System::String^>(data[i][0]),
-				msclr::interop::marshal_as<System::String^>(data[i][1]),
-				msclr::interop::marshal_as<System::String^>(data[i][2]),
-				msclr::interop::marshal_as<System::String^>(data[i][3]),
-				msclr::interop::marshal_as<System::String^>(data[i][4]),
-				msclr::interop::marshal_as<System::String^>(data[i][5]),
-				msclr::interop::marshal_as<System::String^>(data[i][6]),
-				msclr::interop::marshal_as<System::String^>(data[i][7]),
-				msclr::interop::marshal_as<System::String^>(data[i][8]),
-				msclr::interop::marshal_as<System::String^>(data[i][9])
-			);
-			transf::setLastAddedSchoolNumber(transf::getLastAddedSchoolNumber() + 1);
-			
+		main_dg->Rows->Clear();
 
-		}
-		int rows_num = this->main_dg->Rows->Count;
-		this->rows_num_tb->Text = rows_num.ToString();*/
 		sqlite3* db;
-		sqlite3_open("schools.db", &db);
+		string path = paths::get_path() + string("\\datab.zb");
+		int res = sqlite3_open(path.c_str(), &db);
+		if (res != SQLITE_OK)
+		{
+			Event event__(CRIT_T, "Error while opening SQLite DB. ");
+		}
+		
+		char* msg_error;
+		string query = "SELECT name, subordination, management, form, supervisor, mail, site, PAN, contacts, address FROM Schools; ";
+		transf::data_callback.clear();
+		res = sqlite3_exec(db, query.c_str(), callback, NULL, &msg_error);
+
+		vector<vector<string>> _ndata = transf::data_callback;
+
+		for (int i = 0; i < _ndata.size(); i++)
+		{
+			main_dg->Rows->Add(
+				i+1,
+				convert(_ndata[i][1]),
+				convert(_ndata[i][3]),
+				convert(_ndata[i][5]),
+				convert(_ndata[i][7]),
+				convert(_ndata[i][9]),
+				convert(_ndata[i][11]),
+				convert(_ndata[i][13]),
+				convert(_ndata[i][19]),
+				convert(_ndata[i][17]),
+				convert(_ndata[i][15])
+			);
+		}
+		if (_ndata.size() >= 1) rows_num_tb->Text = convert(std::to_string(_ndata.size()));
+		else rows_num_tb->Text = "0";
 		
 	}
 	private: System::Void dataGridView1_CellContentClick(System::Object^ sender, System::Windows::Forms::DataGridViewCellEventArgs^ e) {
@@ -406,25 +442,7 @@ namespace DBa {
 	private: System::Void ‰Ó·‡‚ËÚ¸ToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e) {
 		AddEI^ form = gcnew AddEI;
 		form->ShowDialog();
-		if (transf::isAddedSchool()) {
-			vector<vector<string>> data = mcsv::read_csv(paths::get_path() + "\\schools.zb");
-			main_dg->Rows->Add(transf::getLastAddedSchoolNumber() + 1,
-				msclr::interop::marshal_as<System::String^>(data[data.size() - 1][0]),
-				msclr::interop::marshal_as<System::String^>(data[data.size() - 1][1]),
-				msclr::interop::marshal_as<System::String^>(data[data.size() - 1][2]),
-				msclr::interop::marshal_as<System::String^>(data[data.size() - 1][3]),
-				msclr::interop::marshal_as<System::String^>(data[data.size() - 1][4]),
-				msclr::interop::marshal_as<System::String^>(data[data.size() - 1][5]),
-				msclr::interop::marshal_as<System::String^>(data[data.size() - 1][6]),
-				msclr::interop::marshal_as<System::String^>(data[data.size() - 1][7]),
-				msclr::interop::marshal_as<System::String^>(data[data.size() - 1][8]),
-				msclr::interop::marshal_as<System::String^>(data[data.size() - 1][9])
-			);
-			transf::setLastAddedSchoolNumber(transf::getLastAddedSchoolNumber() + 1);
-			rows_num_tb->Text = (Int32::Parse(rows_num_tb->Text) + 1).ToString();
-			transf::setAddedSchool(false);
-		}
-
+		EI_Load(sender, e);
 	}
 	private: System::Void printDocument1_PrintPage(System::Object^ sender, System::Drawing::Printing::PrintPageEventArgs^ e) {
 	}
@@ -436,65 +454,29 @@ namespace DBa {
 	}
 
 	private: System::Void ˝ÍÒÔÓÚ¬‘‡ÈÎToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e) {
-		saveFileDialog1->Filter = "ÃÓÌÓıÓÏÌ˚È ËÒÛÌÓÍ (*.bmp)|*.bmp|¬ÒÂ Ù‡ÈÎ˚ (*.*)|*.*";
-		saveFileDialog1->InitialDirectory = msclr::interop::marshal_as<System::String^>(paths::get_path() + "\\export");
-		saveFileDialog1->RestoreDirectory = true;
-		saveFileDialog1->ShowDialog();
-		saveFileDialog1->AddExtension = ".bmp";
-		System::String^ path = saveFileDialog1->FileName;
-		Bitmap^ bmp = gcnew Bitmap(main_dg->Size.Width + 10, main_dg->Size.Height + 10);
-		main_dg->DrawToBitmap(bmp, main_dg->Bounds);
-		bmp->Save(path);
+		try {
+			saveFileDialog1->Filter = "ÃÓÌÓıÓÏÌ˚È ËÒÛÌÓÍ (*.bmp)|*.bmp|¬ÒÂ Ù‡ÈÎ˚ (*.*)|*.*";
+			saveFileDialog1->InitialDirectory = msclr::interop::marshal_as<System::String^>(paths::get_path() + "\\export");
+			saveFileDialog1->RestoreDirectory = true;
+			saveFileDialog1->ShowDialog();
+			saveFileDialog1->AddExtension = ".bmp";
+			System::String^ path = saveFileDialog1->FileName;
+			Bitmap^ bmp = gcnew Bitmap(main_dg->Size.Width + 10, main_dg->Size.Height + 10);
+			main_dg->DrawToBitmap(bmp, main_dg->Bounds);
+			bmp->Save(path);
+		}
+		catch (...)
+		{
+			MessageBox::Show("‘‡ÈÎ ÌÂ ·˚Î ÒÓı‡ÌÂÌ. ");
+		}
 	}
 	private: System::Void Ó·ÌÓ‚ËÚ¸ToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e) {
-		main_dg->Rows->Clear();
-		transf::setLastAddedSchoolNumber(0);
-		vector<vector<string>> data = mcsv::read_csv(paths::get_path() + "\\schools.zb");
-		for (int i = 0; i < data.size(); i++)
-		{
-			main_dg->Rows->Add(transf::getLastAddedSchoolNumber() + 1,
-				msclr::interop::marshal_as<System::String^>(data[i][0]),
-				msclr::interop::marshal_as<System::String^>(data[i][1]),
-				msclr::interop::marshal_as<System::String^>(data[i][2]),
-				msclr::interop::marshal_as<System::String^>(data[i][3]),
-				msclr::interop::marshal_as<System::String^>(data[i][4]),
-				msclr::interop::marshal_as<System::String^>(data[i][5]),
-				msclr::interop::marshal_as<System::String^>(data[i][6]),
-				msclr::interop::marshal_as<System::String^>(data[i][7]),
-				msclr::interop::marshal_as<System::String^>(data[i][8]),
-				msclr::interop::marshal_as<System::String^>(data[i][9])
-			);
-			transf::setLastAddedSchoolNumber(transf::getLastAddedSchoolNumber() + 1);
-		}
-		int rows_num = this->main_dg->Rows->Count;
-		this->rows_num_tb->Text = rows_num.ToString();
+		EI_Load(sender, e);
 	}
 	private: System::Void Ó˜ËÒÚËÚ¸¬ÒÂToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e) {
-		std::ofstream ofs;
-		ofs.open(paths::get_path() + "\\schools.zb", std::ofstream::out | std::ofstream::trunc);
-		ofs.close();
-
-		main_dg->Rows->Clear();
-		transf::setLastAddedSchoolNumber(0);
-		vector<vector<string>> data = mcsv::read_csv(paths::get_path() + "\\schools.zb");
-		for (int i = 0; i < data.size(); i++)
-		{
-			main_dg->Rows->Add(transf::getLastAddedSchoolNumber() + 1,
-				msclr::interop::marshal_as<System::String^>(data[i][0]),
-				msclr::interop::marshal_as<System::String^>(data[i][1]),
-				msclr::interop::marshal_as<System::String^>(data[i][2]),
-				msclr::interop::marshal_as<System::String^>(data[i][3]),
-				msclr::interop::marshal_as<System::String^>(data[i][4]),
-				msclr::interop::marshal_as<System::String^>(data[i][5]),
-				msclr::interop::marshal_as<System::String^>(data[i][6]),
-				msclr::interop::marshal_as<System::String^>(data[i][7]),
-				msclr::interop::marshal_as<System::String^>(data[i][8]),
-				msclr::interop::marshal_as<System::String^>(data[i][9])
-			);
-			transf::setLastAddedSchoolNumber(transf::getLastAddedSchoolNumber() + 1);
-		}
-		int rows_num = this->main_dg->Rows->Count;
-		this->rows_num_tb->Text = rows_num.ToString();
+		Confirm^ form = gcnew Confirm;
+		form->ShowDialog();
+		EI_Load(sender, e);
 	}
 	private: System::Void EI_Resize(System::Object^ sender, System::EventArgs^ e) {
 
@@ -508,29 +490,23 @@ namespace DBa {
 
 		System::String^ name_to_del = main_dg->CurrentRow->Cells[1]->Value->ToString();
 		main_dg->Rows->RemoveAt(main_dg->CurrentRow->Index);
-		main_dg->Refresh();
-		main_dg->Rows->Clear();
 
-		transf::setLastAddedSchoolNumber(0);
-		std::string stdname = msclr::interop::marshal_as<std::string>(name_to_del);
+		sqlite3* db;
+		string path = paths::get_path() + string("\\datab.zb");
+		sqlite3_open(path.c_str(), &db);
+		string sql_r = "DELETE FROM Schools WHERE name='" + convert(name_to_del) + "'";
 
-		vector<vector<string>> data = mcsv::read_csv(paths::get_path() + "\\schools.zb");
+		char* msg_error;
 
-		for (int i = 0; i < data.size(); i++) {
-			if (stdname == data[i][0]) {
-				data.erase(data.begin() + i);
-				break;
-			}
-		}
-		rows_num_tb->Text = (Int32::Parse(rows_num_tb->Text) - 1).ToString();
-		mcsv::write_csv(paths::get_path() + "\\schools.zb", data);
+		if (sqlite3_exec(db, sql_r.c_str(), NULL, 0, &msg_error) == SQLITE_OK)
+		MessageBox::Show("—ÚÓÍ‡ Û‰‡ÎÂÌ‡. ");
+		else MessageBox::Show("Error while deleting row. ");
+
+		sqlite3_exec(db, sql_r.c_str(), NULL, 0, &msg_error);
+
+		EI_Load(sender, e);
 	}
 	private: System::Void menuStrip1_ItemClicked(System::Object^ sender, System::Windows::Forms::ToolStripItemClickedEventArgs^ e) {
 	}
 };
 }
-
-ref class EI
-{
-};
-

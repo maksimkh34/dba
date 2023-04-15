@@ -4,6 +4,8 @@
 
 using std::vector;
 
+vector<vector<std::string>> usersdata;
+
 using namespace System;
 using namespace System::Windows::Forms;
 
@@ -15,5 +17,5 @@ void main(array<String^>^ arg) {
 	DBa::Login form;
 	Application::Run(% form);
 	
-	transf::close_logger();
+	//transf::close_logger();
 }

@@ -1,11 +1,16 @@
 #pragma once
-#include "RemoveUser.h"
+#include <vector>
+
 #include "AddUser.h"
 #include "ChangePassword.h"
 #include "paths.h"
 #include "crypt.h"
 #include "trans.h"
 #include "split.h"
+#include <sqlite3.h>
+#include "convert.h"
+
+extern std::vector<std::vector<std::string>> usernames;
 
 namespace DBa {
 
@@ -15,6 +20,18 @@ namespace DBa {
 	using namespace System::Windows::Forms;
 	using namespace System::Data;
 	using namespace System::Drawing;
+
+	static int ul_callback(void* data, int argc, char** argv, char** azColName)
+	{
+		std::vector<string> result;
+		for (int i = 0; i < argc; i++)
+		{
+			result.push_back(azColName[i]);
+			result.push_back(argv[i]);
+		}
+		usernames.push_back(result);
+		return 0;
+	}
 
 	/// <summary>
 	/// Ñâîäêà äëÿ AdminsList
@@ -51,7 +68,7 @@ namespace DBa {
 
 	private: System::Windows::Forms::ToolStripMenuItem^ èçìåíèòüToolStripMenuItem;
 	private: System::Windows::Forms::ToolStripMenuItem^ äîáàâèòüToolStripMenuItem1;
-	private: System::Windows::Forms::ToolStripMenuItem^ íàéòèToolStripMenuItem;
+
 	private: System::Windows::Forms::ToolStripMenuItem^ óäàëèòüToolStripMenuItem;
 	private: System::Windows::Forms::DataGridViewTextBoxColumn^ Column1;
 	private: System::Windows::Forms::DataGridViewTextBoxColumn^ name;
@@ -79,7 +96,6 @@ namespace DBa {
 			this->menuStrip1 = (gcnew System::Windows::Forms::MenuStrip());
 			this->èçìåíèòüToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->äîáàâèòüToolStripMenuItem1 = (gcnew System::Windows::Forms::ToolStripMenuItem());
-			this->íàéòèToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->óäàëèòüToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->èçìåíèòüÏàðîëüToolStripMenuItem = (gcnew System::Windows::Forms::ToolStripMenuItem());
 			this->users_dg = (gcnew System::Windows::Forms::DataGridView());
@@ -103,9 +119,9 @@ namespace DBa {
 			// 
 			// èçìåíèòüToolStripMenuItem
 			// 
-			this->èçìåíèòüToolStripMenuItem->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(3) {
+			this->èçìåíèòüToolStripMenuItem->DropDownItems->AddRange(gcnew cli::array< System::Windows::Forms::ToolStripItem^  >(2) {
 				this->äîáàâèòüToolStripMenuItem1,
-					this->íàéòèToolStripMenuItem, this->óäàëèòüToolStripMenuItem
+					this->óäàëèòüToolStripMenuItem
 			});
 			this->èçìåíèòüToolStripMenuItem->Name = L"èçìåíèòüToolStripMenuItem";
 			this->èçìåíèòüToolStripMenuItem->Size = System::Drawing::Size(59, 20);
@@ -115,20 +131,14 @@ namespace DBa {
 			// äîáàâèòüToolStripMenuItem1
 			// 
 			this->äîáàâèòüToolStripMenuItem1->Name = L"äîáàâèòüToolStripMenuItem1";
-			this->äîáàâèòüToolStripMenuItem1->Size = System::Drawing::Size(126, 22);
+			this->äîáàâèòüToolStripMenuItem1->Size = System::Drawing::Size(180, 22);
 			this->äîáàâèòüToolStripMenuItem1->Text = L"Äîáàâèòü";
 			this->äîáàâèòüToolStripMenuItem1->Click += gcnew System::EventHandler(this, &AdminsList::äîáàâèòüToolStripMenuItem1_Click);
-			// 
-			// íàéòèToolStripMenuItem
-			// 
-			this->íàéòèToolStripMenuItem->Name = L"íàéòèToolStripMenuItem";
-			this->íàéòèToolStripMenuItem->Size = System::Drawing::Size(126, 22);
-			this->íàéòèToolStripMenuItem->Text = L"Íàéòè";
 			// 
 			// óäàëèòüToolStripMenuItem
 			// 
 			this->óäàëèòüToolStripMenuItem->Name = L"óäàëèòüToolStripMenuItem";
-			this->óäàëèòüToolStripMenuItem->Size = System::Drawing::Size(126, 22);
+			this->óäàëèòüToolStripMenuItem->Size = System::Drawing::Size(180, 22);
 			this->óäàëèòüToolStripMenuItem->Text = L"Óäàëèòü";
 			this->óäàëèòüToolStripMenuItem->Click += gcnew System::EventHandler(this, &AdminsList::óäàëèòüToolStripMenuItem_Click);
 			// 
@@ -187,77 +197,70 @@ namespace DBa {
 
 		}
 #pragma endregion
-	private: System::Void äîáàâèòüToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e) {
-
-
-	}
 	private: System::Void èçìåíèòüÏàðîëüToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e) {
 		ChangePassword^ f = gcnew ChangePassword;
 		f->ShowDialog();
 	}
 	private: System::Void AdminsList_Load(System::Object^ sender, System::EventArgs^ e) {
-		ifstream inp(paths::get_path() + "\\usr.zb");
-		vector<std::string>* __datas = new vector<std::string>;
-		std::string* temp = new std::string;
-		while (!inp.eof()) {
-			getline(inp, *temp);
-			if (*temp == "") return;
-			__datas->push_back(*temp);
-		}
-		delete temp;
-		vector<vector<std::string>> data;
-		for (int i = 0; i < __datas->size(); i++) {
-			data.push_back(split(sdecrypt(__datas->at(i)), '-'));
-		}
-		delete __datas;
-		for (int i = 0; i < data.size(); i++)
+		usernames.clear();
+		users_dg->Rows->Clear();
+		sqlite3* db;
+		std::string temp = paths::get_path();
+		temp += "\\datab.zb";
+		sqlite3_open(temp.c_str(), &db);
+		std::string sql = "SELECT name FROM Users; ";
+		char* errMsg;
+		if (sqlite3_exec(db, sql.c_str(), ul_callback, NULL, &errMsg) != SQLITE_OK)
 		{
-			users_dg->Rows->Add(i + 1, msclr::interop::marshal_as<System::String^>(data[i][0]));
-			transf::setLastAddedUserNumber(i + 1);
+			std::string temp = "Error parsing users from table: ";
+			temp += errMsg;
+			MessageBox::Show(convert(temp));
+			return;
 		}
-	}
-	private: System::Void äîáàâèòüToolStripMenuItem1_Click(System::Object^ sender, System::EventArgs^ e) {
-		AddUser^ f = gcnew AddUser;
-		f->ShowDialog();
-		ifstream inp(paths::get_path() + "\\usr.zb");
-		vector<std::string> __datas;
-		std::string* temp = new std::string;
-		while (!inp.eof()) {
-			getline(inp, *temp);
-			__datas.push_back(sdecrypt(*temp));
+		for (int i = 0; i < usernames.size(); i++)
+		{
+			users_dg->Rows->Add(
+				i+1,
+				convert(usernames[i][1])
+				);
 		}
-		delete temp;
-		std::string lastAddedName = split(__datas[__datas.size() - 1], '-')[0];
-		users_dg->Rows->Add(transf::getLastAddedUserNumber(), msclr::interop::marshal_as<System::String^>(lastAddedName));
 	}
 	private: System::Void èçìåíèòüToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e) {
 	}
 	private: System::Void óäàëèòüToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e) {
-		//
-		RemoveUser^ form = gcnew RemoveUser;
-		form->ShowDialog();
-		users_dg->Rows->Clear();
-		ifstream inp(paths::get_path() + "\\usr.zb");
-		vector<std::string>* __datas = new vector<std::string>;
-		std::string* temp = new std::string;
-		while (!inp.eof()) {
-			getline(inp, *temp);
-			__datas->push_back(sdecrypt(*temp));
-		}
-		delete temp;
-		vector<vector<std::string>> data;
-		for (int i = 0; i < __datas->size(); i++) {
-			data.push_back(split(__datas->at(i), '-'));
-		}
-		delete __datas;
-		for (int i = 0; i < data.size(); i++)
-		{
-			users_dg->Rows->Add(i + 1, msclr::interop::marshal_as<System::String^>(data[i][0]));
-			transf::setLastAddedUserNumber(i + 1);
-		}
 
+		sqlite3* db;
+		string path = paths::get_path() + string("\\datab.zb");
+		sqlite3_open(path.c_str(), &db);
+
+		System::String^ name_to_del = users_dg->CurrentRow->Cells[1]->Value->ToString();
+		if (transf::getName() == convert(name_to_del))
+		{
+			MessageBox::Show("Error: you can't delete yourself. Login as other user");
+			return;
+		}
+		if (users_dg->Rows->Count <= 1)
+		{
+			MessageBox::Show("Error: do not delete last user. You wouldn't login later");
+			return;
+		}
+		std::string sql = "DELETE FROM Users WHERE name='" + convert(name_to_del) + "'";
+
+		char* errMsg;
+		if (sqlite3_exec(db, sql.c_str(), NULL, NULL, &errMsg) != SQLITE_OK)
+		{
+			std::string temp = "Error deleting user: ";
+			temp += errMsg;
+			MessageBox::Show(convert(temp));
+		}
+		AdminsList_Load(sender, e);
 	}
 	private: System::Void users_dg_CellContentClick(System::Object^ sender, System::Windows::Forms::DataGridViewCellEventArgs^ e) {
 	}
-	};
+	private: System::Void äîáàâèòüToolStripMenuItem1_Click(System::Object^ sender, System::EventArgs^ e) {
+		AddUser^ f = gcnew AddUser;
+		f->ShowDialog();
+		AdminsList_Load(sender, e);
+	}
+};
 }

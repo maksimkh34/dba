@@ -1,13 +1,27 @@
 #pragma once
-#include <fstream>
 #include <string>
 #include <msclr\marshal_cppstd.h>
 #include "paths.h"
 #include "crypt.h"
+#include <unordered_map>
+#include <sqlite3.h>
+#include "convert.h"
 
-using std::ofstream;
+extern std::vector<std::vector<std::string>> usernames_f;
 
 namespace DBa {
+
+	static int ulx_callback(void* data, int argc, char** argv, char** azColName)
+	{
+		std::vector<string> result;
+		for (int i = 0; i < argc; i++)
+		{
+			result.push_back(azColName[i]);
+			result.push_back(argv[i]);
+		}
+		usernames_f.push_back(result);
+		return 0;
+	}
 
 	using namespace System;
 	using namespace System::ComponentModel;
@@ -119,7 +133,7 @@ namespace DBa {
 			// 
 			this->AutoScaleDimensions = System::Drawing::SizeF(6, 13);
 			this->AutoScaleMode = System::Windows::Forms::AutoScaleMode::Font;
-			this->ClientSize = System::Drawing::Size(319, 128);
+			this->ClientSize = System::Drawing::Size(319, 120);
 			this->Controls->Add(this->save_button);
 			this->Controls->Add(this->label2);
 			this->Controls->Add(this->label1);
@@ -139,21 +153,61 @@ namespace DBa {
 		System::String^ password = pass_tb->Text;
 		System::String^ login = name_tb->Text;
 
-		string str = scrypt(msclr::interop::marshal_as<std::string>(login + "-" + password));
+		sqlite3* db;
+		std::string temp = paths::get_path();
+		temp += "\\datab.zb";
+		sqlite3_open(temp.c_str(), &db);
+		std::string sql = "SELECT name FROM Users; ";
+		char* errMsg;
+		usernames_f.clear();
+		if (sqlite3_exec(db, sql.c_str(), ulx_callback, NULL, &errMsg) != SQLITE_OK)
+		{
+			std::string temp = "Error parsing users from table: ";
+			temp += errMsg;
+			MessageBox::Show(convert(temp));
+			return;
+		}
 
-		std::fstream out;
+		for (int i = 0; i < usernames_f.size(); i++)
+		{
+			if (usernames_f[i][1] == convert(login))
+			{
+				MessageBox::Show("Error: this user is already exists. ");
+				return;
+			}
+		}
 
-		string path__ = paths::get_path() + "\\usr.zb";
+		if (password == "" || login == "")
+		{
+			MessageBox::Show("Введены неверные данные! ");
+			return;
+		}
 
-		out.open(path__);
-		out.seekg(0, std::ios_base::end);
+		std::string pth = paths::get_path().c_str();
+		pth += "\\datab.zb";
+		sqlite3_open(pth.c_str(), &db);
+		sql = "INSERT INTO Users VALUES(\"";
 
-		if (out.tellg() != 0) 
-			out << '\n';
+		sql += convert(login);
+		sql += "\", \"";
+		std::hash<std::string> hasher;
 
-		out << str;
-		this->Close();
+		sql += convert(hasher(convert(password)).ToString());
+		sql += "\");";
 
+		char* msgErr;
+		if (sqlite3_exec(db, sql.c_str(), NULL, NULL, &msgErr) != SQLITE_OK)
+		{
+			std::string temp = "";
+			temp += "Error while adding user: ";
+			temp += msgErr;
+			MessageBox::Show(convert(temp));
+		}
+		else
+		{
+			MessageBox::Show("Пользователь добавлен. ");
+			this->Close();
+		}
 	}
 	private: System::Void AddUser_Load(System::Object^ sender, System::EventArgs^ e) {
 	}

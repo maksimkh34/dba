@@ -4,11 +4,14 @@
 #include <vector>
 #include <fstream>
 #include <string>
+#include <unordered_map>
 #include <stdlib.h>
 #include <msclr\marshal_cppstd.h>
 
 #include "Main.h"
+#include <sqlite3.h>
 #include "exts.h"
+#include "convert.h"
 #include "split.h"
 #include "trans.h"
 #include "crypt.h"
@@ -24,7 +27,21 @@ using std::string;
 
 std::vector<string> split(string text, char delimeter);
 
+extern std::vector<std::vector<string>> usersdata;
+
 namespace DBa {
+
+	static int u_callback(void* data, int argc, char** argv, char** azColName)
+	{
+		std::vector<string> result;
+		for (int i = 0; i < argc; i++)
+		{
+			result.push_back(azColName[i]);
+			result.push_back(argv[i]);
+		}
+		usersdata.push_back(result);
+		return 0;
+	}
 
 	using namespace System;
 	using namespace System::ComponentModel;
@@ -145,7 +162,7 @@ namespace DBa {
 			this->auth_butt->ForeColor = System::Drawing::Color::White;
 			this->auth_butt->Location = System::Drawing::Point(11, 90);
 			this->auth_butt->Name = L"auth_butt";
-			this->auth_butt->Size = System::Drawing::Size(256, 23);
+			this->auth_butt->Size = System::Drawing::Size(258, 23);
 			this->auth_butt->TabIndex = 4;
 			this->auth_butt->Text = L"Авторизоваться";
 			this->auth_butt->UseVisualStyleBackColor = false;
@@ -177,83 +194,49 @@ namespace DBa {
 		}
 #pragma endregion
 	private: System::Void auth_butt_Click(System::Object^ sender, System::EventArgs^ e) {
-		bool is_skipping_auth = false;
 		if (pass_tb->Text == "" && login_tb->Text == "") {
 			transf::setName("$UNSET$");
 			Main^ mf = gcnew Main;
 			mf->Show();
 			this->Hide();
 
-			Event skipped_auth(MID_T, "Auth skipped... ");
-			transf::add_event(skipped_auth);
-
 			return;
 		}
-		string __path = paths::get_path() + "\\usr.zb";
-		ifstream fdb(__path);
-		if (!fdb.is_open())
+
+		std::hash<std::string> hasher;
+		std::string username = convert(login_tb->Text);
+		std::string password = convert(hasher(convert(pass_tb->Text).c_str()).ToString());
+
+		for (int i = 0; i < usersdata.size(); i++)
 		{
-			DBError^ dbe = gcnew DBError;
-			dbe->ShowDialog();
-
-			Event db_error_ev(CRIT_T, "Error while opening database... ");
-			transf::add_event(db_error_ev);
-		}
-		string data = "empty";
-		std::vector<std::vector<string>> datas;
-		while (!fdb.eof()) {
-			getline(fdb, data);
-			std::vector<string> data_v = split(sdecrypt(data), '-');
-			datas.push_back(data_v);
-		}
-
-		String^ login_ = login_tb->Text;
-		String^ passw_ = pass_tb->Text;
-
-		bool auth = false;
-		for (int i = 0; i < datas.size(); i++) {
-			System::String^ login_sys = msclr::interop::marshal_as<System::String^>(datas[i][0]);
-			System::String^ pass_sys = msclr::interop::marshal_as<System::String^>(datas[i][1]);
-
-			if (login_sys == login_ && pass_sys == passw_)
+			if (username == usersdata[i][1])
 			{
-				auth = true;
-				Event auth_done(INFO_T, "User " + msclr::interop::marshal_as<std::string>(login_sys) + " login done");
-				transf::add_event(auth_done);
+				if (password == usersdata[i][3])
+				{
+					transf::setName(username);
+					Main^ f = gcnew Main;
+					f->Show();
+					this->Hide();
+					return;
+				}
 			}
-
 		}
-		if (!auth) {
-
-			LoginError^ lef = gcnew LoginError;
-			lef->ShowDialog();
-
-			Event incorrent_login(WARN_T, "Login data incorrect: \"" +
-				msclr::interop::marshal_as<std::string>(login_tb->Text) +
-				"\" with pass \"" +
-				msclr::interop::marshal_as<std::string>(pass_tb->Text) +
-				"\"");
-			transf::add_event(incorrent_login);
-			transf::flush_l();
-
-		}
-		else
-		{
-
-			transf::setName(msclr::interop::marshal_as<std::string>(login_));
-			Main^ mf = gcnew Main;
-			mf->Show();
-			this->Hide();
-
-			push_event(INFO_T, "Main window prepaing...");
-		}
+		MessageBox::Show("Введены неверные данные! ");
 	}
-
+	
 	private: System::Void Login_Load(System::Object^ sender, System::EventArgs^ e) {
 		auth_butt->FlatAppearance->BorderSize = 0;
 		auth_butt->FlatStyle = FlatStyle::Flat;
 		paths::load_path();
-		push_event(INFO_T, "Login window load");
+
+		sqlite3* db;
+		std::string path_db = paths::get_path() + std::string("\\datab.zb");
+		sqlite3_open(path_db.c_str(), &db);
+
+		char* msgError;
+		string sql = "SELECT * FROM Users; ";
+		int res = sqlite3_exec(db, sql.c_str(), u_callback, NULL, &msgError);
+		if (res != SQLITE_OK) MessageBox::Show(convert(std::string("Error loading userdata: " + string(msgError))));
 	}
 	private: System::Void login_tb_TextChanged(System::Object^ sender, System::EventArgs^ e) {
 	}

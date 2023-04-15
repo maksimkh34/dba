@@ -2,10 +2,13 @@
 #include <string>
 #include "Logger.h"
 
-#define push_event(x, y) Event event__(x, y); transf::add_event(event__);
+//#define push_event(event_type, text) Event event__(event_type, text); transf::add_event(event__)
 #define sst System::String^
 
 namespace transf {
+	extern vector<string> data_changelog;
+	extern vector<vector<string>> data_callback;
+
 	std::string getName();
 	void setName(std::string name_);
 
@@ -18,7 +21,7 @@ namespace transf {
 	bool isAddedSchool();
 	void setAddedSchool(bool x);
 
-	void add_event(Event ev);
-	void flush_l();
-	void close_logger();
+	//void add_event(Event ev);
+	//void flush_l();
+	//void close_logger();
 }

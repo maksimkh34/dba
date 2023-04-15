@@ -3,6 +3,7 @@
 #include <msclr\marshal_cppstd.h>
 
 #include "mcsv.h"
+#include <sqlite3.h>
 #include "Paths.h"
 #include "trans.h"
 #include "EIClass.h"
@@ -178,6 +179,7 @@ namespace DBa {
 			this->form_selector->Name = L"form_selector";
 			this->form_selector->Size = System::Drawing::Size(435, 21);
 			this->form_selector->TabIndex = 7;
+			this->form_selector->SelectedIndexChanged += gcnew System::EventHandler(this, &AddEI::form_selector_SelectedIndexChanged);
 			// 
 			// org_tb
 			// 
@@ -368,58 +370,44 @@ namespace DBa {
 #pragma endregion
 
 	private: System::Void save_button_Click(System::Object^ sender, System::EventArgs^ e) {
+		sqlite3* db;
+		string path = paths::get_path() + string("\\datab.zb");
+		int res = sqlite3_open(path.c_str(), &db);
 
-		if (shortname_tb->Text != ""
-			&& x_tb->Text != ""
-			&& form_selector->Text != ""
-			&& org_tb->Text != ""
-			&& leader_tb->Text != ""
-			&& email_tb->Text != ""
-			&& site_tb->Text != ""
-			&& adress_tb->Text != ""
-			&& unp_tb->Text != ""
-			&& phone_tb->Text != "")
+		if (res != SQLITE_OK)
 		{
-
-			std::string name, x, form, org, leader, email, site, adress, unp, phone;
-
-			name = msclr::interop::marshal_as<std::string>(shortname_tb->Text);
-			x = msclr::interop::marshal_as<std::string>(x_tb->Text);
-			form = msclr::interop::marshal_as<std::string>(form_selector->Text);
-			org = msclr::interop::marshal_as<std::string>(org_tb->Text);
-			leader = msclr::interop::marshal_as<std::string>(leader_tb->Text);
-			email = msclr::interop::marshal_as<std::string>(email_tb->Text);
-			site = msclr::interop::marshal_as<std::string>(site_tb->Text);
-			adress = msclr::interop::marshal_as<std::string>(adress_tb->Text);
-			phone = msclr::interop::marshal_as<std::string>(phone_tb->Text);
-			unp = msclr::interop::marshal_as<std::string>(unp_tb->Text);
-
-			std::vector<std::string> data;
-			data.push_back(name);
-			data.push_back(x);
-			data.push_back(org);
-			data.push_back(form);
-			data.push_back(leader);
-			data.push_back(email);
-			data.push_back(site);
-			data.push_back(unp);
-			data.push_back(phone);
-			data.push_back(adress);
-
-			mcsv::append_csv(paths::get_path() + "\\schools.zb", data);
-			transf::setAddedSchool(true);
-
-			push_event(INFO_T, "New EI added! ");
-
-			this->Close();
-		}
-		else
-		{
-			LoginError^ form = gcnew LoginError;
-			form->ShowDialog();
+			//Event event__(CRIT_T, "Error while opening SQLite DB (AddEI). ");
+			//transf::add_event(event__);
 		}
 
+		string sql_r = "INSERT INTO Schools VALUES(";
 
+		vector<string> new_EI = {
+			msclr::interop::marshal_as<std::string>(shortname_tb->Text),
+			msclr::interop::marshal_as<std::string>(x_tb->Text), 
+			msclr::interop::marshal_as<std::string>(form_selector->Text),
+			msclr::interop::marshal_as<std::string>(org_tb->Text),
+			msclr::interop::marshal_as<std::string>(leader_tb->Text),
+			msclr::interop::marshal_as<std::string>(email_tb->Text),
+			msclr::interop::marshal_as<std::string>(site_tb->Text),
+			msclr::interop::marshal_as<std::string>(adress_tb->Text),
+			msclr::interop::marshal_as<std::string>(phone_tb->Text)
+		};
+
+		for (int i = 0; i < new_EI.size(); i++)
+		{
+			sql_r += "'" +  new_EI[i] + "', ";
+		}
+		sql_r += "'" + msclr::interop::marshal_as<std::string>(unp_tb->Text) + "');";
+
+		char* msgError;
+		int status = sqlite3_exec(db, sql_r.c_str(), NULL, 0, &msgError);
+
+		if (status != SQLITE_OK)
+		{
+			//push_event(ERR_T, "Error inserting data into table... ");
+		}
+		this->Close();
 	}
 	private: System::Void label12_Click(System::Object^ sender, System::EventArgs^ e) {
 	}
@@ -427,7 +415,9 @@ namespace DBa {
 	private: System::Void unp_tb_TextChanged(System::Object^ sender, System::EventArgs^ e) {
 	}
 	private: System::Void AddEI_Load(System::Object^ sender, System::EventArgs^ e) {
-		push_event(INFO_T, "AddEI load");
+		//push_event(INFO_T, "AddEI load");
 	}
-	};
+	private: System::Void form_selector_SelectedIndexChanged(System::Object^ sender, System::EventArgs^ e) {
+	}
+};
 }

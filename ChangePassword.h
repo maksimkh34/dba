@@ -1,9 +1,13 @@
 #pragma once
 #include <vector>
 #include <fstream>
+#include <sqlite3.h>
+#include <unordered_map>
+#include <windows.h>
 #include <msclr/marshal_cppstd.h>
 
 #include "paths.h"
+#include "convert.h"
 #include "split.h"
 #include "trans.h"
 #include "crypt.h"
@@ -160,10 +164,16 @@ namespace DBa {
 #pragma endregion
 	private: System::Void ChangePassword_Load(System::Object^ sender, System::EventArgs^ e) {
 		System::String^ name = msclr::interop::marshal_as<System::String^>(transf::getName());
+		if (transf::getName() == "$UNSET$")
+		{
+			MessageBox::Show("Login was skipped. You can't change password logged out.");
+			this->Close();
+		}
 		this->label1->Text += name + ":";
 	}
 
 	private: System::Void save_button_Click(System::Object^ sender, System::EventArgs^ e) {
+		
 		sst pass = pass1_tb->Text;
 		sst pass2 = pass2_tb->Text;
 		std::string pwd = msclr::interop::marshal_as<std::string>(pass);
@@ -171,42 +181,33 @@ namespace DBa {
 		if (pwd != pwd2) {
 			LoginError^ form = gcnew LoginError;
 			form->ShowDialog();
+			return;
 		}
-		else {
-			delete pass2;
-			delete pass;
-			ifstream inp(paths::get_path() + "\\usr.zb");
-			vector<std::string>* __datas = new vector<std::string>;
-			std::string* temp = new std::string;
-			while (!inp.eof()) {
-				getline(inp, *temp);
-				__datas->push_back(sdecrypt(*temp));
-			}
-			delete temp;
-			vector<vector<std::string>> data;
-			for (int i = 0; i < __datas->size(); i++) {
-				data.push_back(split(__datas->at(i), '-'));
-			}
-			delete __datas;
-			bool changed = false;
-			for (int i = 0; i < data.size(); i++) {
-				if (data[i][0] == transf::getName()) {
-					data[i][1] = pwd;
-					changed = true;
-				}
-			}
-			if (changed) {
-				ofstream out(paths::get_path() + "\\usr.zb");
-				for (int i = 0; i < data.size() - 1; i++) {
-					out << scrypt(data[i][0]) << 'J' << scrypt(data[i][1]) << '\n';
-				}
-				out << scrypt(data[data.size() - 1][0]) << 'J' << scrypt(data[data.size() - 1][1]);
-				this->Close();
-			}
-			else {
-				UsrNotFound^ form = gcnew UsrNotFound;
-				form->ShowDialog();
-			}
+		sqlite3* db;
+		std::string path = paths::get_path();
+		path += "\\datab.zb";
+		sqlite3_open(path.c_str(), &db);
+		
+		std::string sql = "";
+		sql += "UPDATE Users SET hashpass=\"";
+		std::hash<std::string> hasher;
+		sql += convert(hasher(convert(pass)).ToString());
+		sql += "\" WHERE name=\"";
+		sql += transf::getName();
+		sql += "\";";
+
+		char* errMsg;
+
+		if (sqlite3_exec(db, sql.c_str(), NULL, NULL, &errMsg) != SQLITE_OK)
+		{
+			std::string temp = "Error changing password: ";
+			temp += errMsg;
+			MessageBox::Show(convert(temp));
+		}
+		else
+		{
+			MessageBox::Show("Пароль обновлен! ");
+			this->Close();
 		}
 	}
 	};

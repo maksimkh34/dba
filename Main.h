@@ -2,7 +2,11 @@
 
 #include <Windows.h>
 #include <shellapi.h>
-
+#include <fstream>
+#include <string>
+#include "split.h"
+#include <vector>
+#include "Changelog.h"
 #include "EI.h"
 #include "Help_f.h"
 #include "Groups.h"
@@ -11,7 +15,7 @@
 #include "ChangePassword.h"
 
 namespace DBa {
-
+	
 	using namespace System;
 	using namespace System::ComponentModel;
 	using namespace System::Collections;
@@ -274,7 +278,26 @@ namespace DBa {
 		}
 #pragma endregion
 	private: System::Void Main_Load(System::Object^ sender, System::EventArgs^ e) {
+		std::ifstream changelog;
+		std::string path__ = paths::get_path() + string("\\changelog.tc");
+		changelog.open(path__);
+		if (changelog.is_open())
+		{
+			if (!(changelog.peek() == std::ifstream::traits_type::eof()))
+			{
+				std::string temp = "";
+				std::vector<std::string> v;
+				while (!changelog.eof())
+				{
+					std::getline(changelog, temp);
+					v.push_back(temp);
+				}
 
+				transf::data_changelog = v;
+				Changelog^ f = gcnew Changelog;
+				f->ShowDialog();
+			}
+		}
 	}
 	private: System::Void fdToolStripMenuItem_Click(System::Object^ sender, System::EventArgs^ e) {
 	}
@@ -313,4 +336,5 @@ namespace DBa {
 		f->ShowDialog();
 	}
 	};
+	
 }
